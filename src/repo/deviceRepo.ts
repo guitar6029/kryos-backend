@@ -1,6 +1,5 @@
 import type { Device } from "../models/device.js";
 import crypto from "crypto";
-import type { DeviceType } from "../models/deviceType.js";
 import type { CreateDeviceInput } from "../models/createDeviceInput.js";
 
 const devices: Device[] = [
