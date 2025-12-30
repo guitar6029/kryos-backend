@@ -7,11 +7,19 @@ async function seed() {
   try {
     await client.query("BEGIN");
 
-    // 1) reset (dev seed behavior)
+    // reset (dev-only behavior)
     await client.query("TRUNCATE TABLE devices");
 
-    // 2) insert rows (you choose the data)
-    // await client.query("INSERT INTO devices (...) VALUES ...");
+    // insert Kryos devices
+    await client.query(`
+      INSERT INTO devices (name, type, status, last_seen_at)
+      VALUES
+        ('KRYOS-MK1-ALPHA', 'DRONE', 'ACTIVE', now()),
+        ('KRYOS-MK1-BRAVO', 'DRONE', 'MAINTENANCE', now()),
+        ('KRYOS-EX1-001', 'EXOFRAME', 'INACTIVE', NULL),
+        ('KRYOS-EX1-002', 'EXOFRAME', 'ACTIVE', now()),
+        ('KRYOS-SENTINEL-01', 'SENSOR', 'ACTIVE', now())
+    `);
 
     await client.query("COMMIT");
     console.log("✅ Seed complete");
