@@ -7,6 +7,8 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
+    "seed": "node dist/seeds/seed.js",
+    "seed:dev": "node --loader ts-node/esm src/seeds/seed.ts",
     "migrate:up": "node-pg-migrate up",
     "migrate:down": "node-pg-migrate down",
     "test": "echo \"Error: no test specified\" && exit 1"
