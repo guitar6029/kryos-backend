@@ -5,7 +5,6 @@ import {
   createDevice,
 } from "../repo/deviceRepo.js";
 import { DEVICE_TYPES } from "../models/deviceType.js";
-import { RepoError } from "../repo/errors.js";
 const router = express.Router();
 
 router.get("/", async (_req, res) => {
