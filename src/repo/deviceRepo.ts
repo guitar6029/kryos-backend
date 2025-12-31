@@ -1,37 +1,45 @@
 import type { Device } from "../models/device.js";
-import crypto from "crypto";
 import type { CreateDeviceInput } from "../models/createDeviceInput.js";
+import { pool } from "../db.js";
 
-const devices: Device[] = [
-  {
-    id: crypto.randomUUID(),
-    name: "BaseCamp-1",
-    type: "DRONE",
-    status: "ONLINE",
-    createdAt: new Date().toISOString(),
-    lastSeenAt: null,
-  },
-];
+export const listDevices = async (): Promise<Device[]> => {
+  const result = await pool.query<Device>(
+    `SELECT id, name, type, status, created_at AS "createdAt", last_seen_at AS "lastSeenAt" FROM devices`
+  );
 
-export const listDevices = (): Device[] => {
-  return devices;
+  return result.rows;
 };
 
-export const getDeviceById = (id: string): Device | undefined => {
-  return devices.find((device: Device) => device.id === id);
+export const getDeviceById = async (
+  id: string
+): Promise<Device | undefined> => {
+  const result = await pool.query<Device>(
+    `SELECT id, name, type, status, created_at AS "createdAt", last_seen_at AS "lastSeenAt" FROM devices WHERE id = $1`,
+    [id]
+  );
+  return result.rows[0] ?? undefined;
 };
 
-export const createDevice = (form: CreateDeviceInput): Device => {
-  const newDevice: Device = {
-    id: crypto.randomUUID(),
-    name: form.name,
-    type: form.type,
-    status: "OFFLINE",
-    createdAt: new Date().toISOString(),
-    lastSeenAt: null,
-  };
+export const createDevice = async (
+  form: CreateDeviceInput
+): Promise<Device> => {
+  const result = await pool.query<Device>(
+    `
+    INSERT INTO devices (name, type, status)
+    VALUES ($1, $2, 'OFFLINE')
+    RETURNING
+      id,
+      name,
+      type,
+      status,
+      created_at AS "createdAt",
+      last_seen_at AS "lastSeenAt"
+    `,
+    [form.name, form.type]
+  );
+  if (!result.rows[0]) {
+    throw new Error("Failed to create device");
+  }
 
-  devices.push(newDevice);
-
-  return newDevice;
+  return result.rows[0];
 };
