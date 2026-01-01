@@ -1,4 +1,5 @@
 import express from "express";
+import { DeviceSchema } from "../validators/device.schema.js";
 import {
   listDevices,
   getDeviceById,
@@ -35,22 +36,26 @@ router.get("/:id", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  const { name, type } = req.body;
-  if (typeof name !== "string" || name.trim().length === 0) {
-    return res.status(400).json({ error: { message: "Name is not valid" } });
+  const parsed = DeviceSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({
+      error: {
+        message: "Validation Failed",
+        issues: parsed.error.issues.map((i) => ({
+          field: i.path.join("."),
+          message: i.message,
+        })),
+      },
+    });
   }
 
-  if (!DEVICE_TYPES.includes(type)) {
-    return res.status(400).json({ error: { message: "Type is not valid" } });
-  }
+  const { name, type } = parsed.data;
 
   try {
-    const device = await createDevice({ name: name.trim(), type });
+    const device = await createDevice({ name, type });
     return res.status(201).json(device);
   } catch (err: unknown) {
     console.error("createDevice failed:", err);
-
-    // If you have a UNIQUE constraint and pg throws 23505:
     if (
       typeof err === "object" &&
       err !== null &&

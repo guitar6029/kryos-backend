@@ -7,6 +7,7 @@ const DEVICE_MAX_NAME_LENGTH = 100;
 export const DeviceSchema = z.strictObject({
   name: z
     .string()
+    .trim()
     .min(
       DEVICE_MIN_NAME_LENGTH,
       `Name has to be at least ${DEVICE_MIN_NAME_LENGTH} characters long.`

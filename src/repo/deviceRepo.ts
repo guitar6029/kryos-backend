@@ -1,6 +1,7 @@
 import type { Device } from "../models/device.js";
 import type { CreateDeviceInput } from "../models/createDeviceInput.js";
 import { pool } from "../db.js";
+import { DeviceSchema } from "../validators/device.schema.js";
 
 export const listDevices = async (): Promise<Device[]> => {
   const result = await pool.query<Device>(
@@ -23,10 +24,19 @@ export const getDeviceById = async (
 export const createDevice = async (
   form: CreateDeviceInput
 ): Promise<Device> => {
+  const temp = DeviceSchema.safeParse(form);
+
+  if (!temp.success) {
+    throw new Error("Failed to create device, check the form");
+  }
+
+  const { name, type } = temp.data;
+
+  //only query if the Schema is correct
   const result = await pool.query<Device>(
     `
-    INSERT INTO devices (name, type, status)
-    VALUES ($1, $2, 'OFFLINE')
+    INSERT INTO devices (name, type)
+    VALUES ($1, $2)
     RETURNING
       id,
       name,
@@ -35,7 +45,7 @@ export const createDevice = async (
       created_at AS "createdAt",
       last_seen_at AS "lastSeenAt"
     `,
-    [form.name, form.type]
+    [name, type]
   );
   if (!result.rows[0]) {
     throw new Error("Failed to create device");
