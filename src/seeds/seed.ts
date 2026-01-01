@@ -8,17 +8,18 @@ async function seed() {
     await client.query("BEGIN");
 
     // reset (dev-only behavior)
-    await client.query("TRUNCATE TABLE devices");
+    // CASCADE helps later when other tables reference devices
+    await client.query("TRUNCATE TABLE devices RESTART IDENTITY CASCADE");
 
-    // insert Kryos devices
+    // insert Kryos devices (aligned with Postgres enums)
     await client.query(`
       INSERT INTO devices (name, type, status, last_seen_at)
       VALUES
-        ('KRYOS-MK1-ALPHA', 'DRONE', 'ACTIVE', now()),
-        ('KRYOS-MK1-BRAVO', 'DRONE', 'MAINTENANCE', now()),
-        ('KRYOS-EX1-001', 'EXOFRAME', 'INACTIVE', NULL),
-        ('KRYOS-EX1-002', 'EXOFRAME', 'ACTIVE', now()),
-        ('KRYOS-SENTINEL-01', 'SENSOR', 'ACTIVE', now())
+        ('KRYOS-MK1-ALPHA', 'DRONE',  'ONLINE',  now()),
+        ('KRYOS-MK1-BRAVO', 'DRONE',  'OFFLINE', now()),
+        ('KRYOS-EX1-001',   'EXO',    'OFFLINE', NULL),
+        ('KRYOS-EX1-002',   'EXO',    'ONLINE',  now()),
+        ('KRYOS-SENTINEL-01','SENSOR','ONLINE',  now())
     `);
 
     await client.query("COMMIT");
