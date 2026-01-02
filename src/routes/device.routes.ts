@@ -1,11 +1,10 @@
 import express from "express";
-import { DeviceSchema } from "../validators/device.schema.js";
+import { DeviceById, DeviceSchema } from "../validators/device.schema.js";
 import {
   listDevices,
   getDeviceById,
   createDevice,
 } from "../repo/deviceRepo.js";
-import { DEVICE_TYPES } from "../models/deviceType.js";
 const router = express.Router();
 
 router.get("/", async (_req, res) => {
@@ -22,7 +21,19 @@ router.get("/", async (_req, res) => {
 
 router.get("/:id", async (req, res) => {
   try {
-    const device = await getDeviceById(req.params.id);
+    const temp = DeviceById.safeParse({ id: req.params.id });
+
+    if (!temp.success) {
+      return res.status(400).json({
+        error: {
+          message: "Failed to retrieve device, make sure the id valid",
+          issues: temp.error.issues,
+        },
+      });
+    }
+    const { id } = temp.data;
+
+    const device = await getDeviceById(id);
     if (!device) {
       return res.status(404).json({ error: { message: "Device not found." } });
     }

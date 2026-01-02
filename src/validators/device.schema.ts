@@ -18,3 +18,7 @@ export const DeviceSchema = z.strictObject({
     ),
   type: z.enum(DEVICE_TYPES),
 });
+
+export const DeviceById = z.strictObject({
+  id: z.uuid(),
+});

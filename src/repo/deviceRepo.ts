@@ -1,7 +1,7 @@
 import type { Device } from "../models/device.js";
 import type { CreateDeviceInput } from "../models/createDeviceInput.js";
 import { pool } from "../db.js";
-import { DeviceSchema } from "../validators/device.schema.js";
+import { DeviceSchema, DeviceById } from "../validators/device.schema.js";
 
 export const listDevices = async (): Promise<Device[]> => {
   const result = await pool.query<Device>(
