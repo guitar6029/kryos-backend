@@ -1,10 +1,24 @@
 import type { NextFunction, Request, Response } from "express";
+import { ApiError } from "../errors/ApiError.js";
 
 export function errorHandler(
-  _err: Error,
+  err: unknown,
   _req: Request,
   res: Response,
   _next: NextFunction
 ): void {
-  res.status(500).json({ error: { message: "Internal Server Error" } });
+  // default
+  let status = 500;
+  let message = "Internal Server Error";
+  let details: unknown;
+
+  if (err instanceof ApiError) {
+    status = err.status;
+    message = err.message;
+    details = err.details;
+  }
+
+  res.status(status).json({
+    error: { message, details },
+  });
 }
