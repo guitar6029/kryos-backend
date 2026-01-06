@@ -1,13 +1,20 @@
 import type { Device } from "../models/device.js";
 import type { CreateDeviceInput } from "../models/createDeviceInput.js";
 import { pool } from "../db.js";
-import { DeviceSchema, DeviceById } from "../validators/device.schema.js";
-
+import { DeviceSchema } from "../validators/device.schema.js";
+import type { Measurement } from "../models/measurement.js";
 export const listDevices = async (): Promise<Device[]> => {
   const result = await pool.query<Device>(
     `SELECT id, name, type, status, created_at AS "createdAt", last_seen_at AS "lastSeenAt" FROM devices`
   );
 
+  return result.rows;
+};
+
+export const listMeasurements = async (): Promise<Measurement[]> => {
+  const result = await pool.query<Measurement>(
+    `SELECT id, device_id AS "deviceId", recorded_at AS "recordedAt", metric, value, unit FROM measurements ORDER BY recorded_at DESC`
+  );
   return result.rows;
 };
 
