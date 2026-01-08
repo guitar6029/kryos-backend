@@ -5,6 +5,7 @@ import MeasurementsRouter from "./routes/measurements.routes.js";
 import AuthRouter from "./routes/auth.routes.js";
 import { requestLogger } from "./middleware/requestLogger.js";
 import { errorHandler } from "./middleware/errorHandler.js";
+import { requireAuth } from "./middleware/authMiddleware.js";
 const app = express();
 
 /** MIDDLEWARE */
@@ -14,8 +15,8 @@ app.use(requestLogger);
 /** ROUTES */
 app.use("/auth", AuthRouter);
 app.use("/health", HealthRouter);
-app.use("/devices", DeviceRouter);
-app.use("/measurements", MeasurementsRouter);
+app.use("/devices", requireAuth, DeviceRouter);
+app.use("/measurements", requireAuth, MeasurementsRouter);
 
 /** ERROR */
 app.use(errorHandler);
