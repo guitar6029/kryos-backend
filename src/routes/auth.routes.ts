@@ -22,18 +22,18 @@ router.post(
     }
     //if good
     const { name, email, password } = parsed.data;
-    const exists = await checkEmailExists(email)
+    const exists = await checkEmailExists(email);
     // we cab create the new user
-    if (!exists) {
-            //create the new user
-            const user = await createUser({name, email, password})
-    }
-    //if exists
-    return res.status(409).json({
+    if (exists) {
+      //if exists
+      return res.status(409).json({
         error: {
-            message: "User already exists"
-        }
-    })
+          message: "User already exists",
+        },
+      });
+    }
+    const user = await createUser({ name, email, password });
+    return res.status(201).json(user);
   })
 );
 

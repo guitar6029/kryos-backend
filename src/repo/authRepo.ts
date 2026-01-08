@@ -1,5 +1,6 @@
 import { pool } from "../db.js";
-import type { User } from "../models/user.js";
+import type { SafeUser, User } from "../models/user.js";
+import bcrypt from "bcryptjs";
 
 // check if email already exists in the db
 export const checkEmailExists = async (email: string): Promise<boolean> => {
@@ -19,6 +20,24 @@ export const createUser = async ({
   name: string;
   email: string;
   password: string;
-}) => {
-    
+}): Promise<SafeUser> => {
+  const hash = await bcrypt.hash(password, 10);
+  //hashed goes to the DB
+  const result = await pool.query(
+    `INSERT INTO users (name, email, password_hash)
+         VALUES ($1, $2, $3)
+         RETURNING
+            id,
+            name,
+            email,
+            created_at,
+            updated_at
+        `,
+    [name, email, hash]
+  );
+  if (!result.rows[0]) {
+    throw new Error("Failed to create user");
+  }
+
+  return result.rows[0];
 };
