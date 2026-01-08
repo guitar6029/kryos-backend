@@ -41,3 +41,13 @@ export const createUser = async ({
 
   return result.rows[0];
 };
+
+export const getUserByEmail = async (email: string): Promise<User | null> => {
+  const result = await pool.query(
+    `SELECT id, email, password_hash FROM users WHERE email = $1 LIMIT 1;
+        `,
+    [email]
+  );
+
+  return result.rows[0] ?? null;
+};
